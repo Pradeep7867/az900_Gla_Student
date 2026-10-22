@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AZ-900: Azure Hierarchy Quiz</title>
+<style>
+  :root { font-family: Arial, Helvetica, sans-serif; color: #172033; background: #f5f7fb; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 14px; }
+  main { max-width: 760px; margin: auto; background: #fff; border: 1px solid #e1e6ef; border-radius: 18px; padding: 26px; box-shadow: 0 8px 28px #1720330b; }
+  .tag { display:inline-block; background:#eaf2ff; color:#174ea6; padding:6px 10px; border-radius:999px; font-size:.85rem; font-weight:700; }
+  h1 { margin: 14px 0 8px; font-size: clamp(1.5rem, 4vw, 2rem); }
+  .intro { color:#536078; line-height:1.55; }
+  .question { margin:24px 0 12px; font-weight:700; }
+  .field { margin: 16px 0; }
+  label { display:block; margin-bottom:7px; font-weight:700; }
+  select { width:100%; padding:14px 12px; border:1px solid #cbd3df; border-radius:12px; font-size:1rem; background:white; color:#172033; }
+  select:focus, button:focus { outline:3px solid #9bc2ff; outline-offset:2px; }
+  .buttons { display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
+  button { border:0; border-radius:12px; padding:13px 18px; font-size:1rem; font-weight:700; cursor:pointer; }
+  .primary { background:#155eef; color:white; flex:1; }
+  .secondary { background:#edf1f7; color:#172033; }
+  #result { margin-top:20px; padding:16px; border-radius:12px; display:none; line-height:1.55; }
+  #result.good { display:block; background:#eaf8ef; color:#176534; border:1px solid #b8e5c5; }
+  #result.review { display:block; background:#fff6e5; color:#7a4b00; border:1px solid #f1d49a; }
+  #explanations { margin-top:12px; }
+  #explanations li { margin:8px 0; }
+  footer { margin-top:22px; color:#657087; font-size:.88rem; line-height:1.5; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">AZ-900 • Quick Practice</span>
+  <h1>Azure Management Hierarchy</h1>
+  <p class="intro">Choose the correct level for each position, from top to bottom. Submit your answers to check your score and read the explanations.</p>
+
+  <form id="quiz">
+    <p class="question">Arrange the four levels of Azure hierarchy.</p>
+    <div class="field">
+      <label for="level1">Level 1 — Top</label>
+      <select id="level1" required>
+        <option value="">Choose a level</option>
+        <option value="mg">Management Group</option>
+        <option value="sub">Subscription</option>
+        <option value="rg">Resource Group</option>
+        <option value="res">Resource</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="level2">Level 2</label>
+      <select id="level2" required>
+        <option value="">Choose a level</option>
+        <option value="mg">Management Group</option>
+        <option value="sub">Subscription</option>
+        <option value="rg">Resource Group</option>
+        <option value="res">Resource</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="level3">Level 3</label>
+      <select id="level3" required>
+        <option value="">Choose a level</option>
+        <option value="mg">Management Group</option>
+        <option value="sub">Subscription</option>
+        <option value="rg">Resource Group</option>
+        <option value="res">Resource</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="level4">Level 4 — Bottom</label>
+      <select id="level4" required>
+        <option value="">Choose a level</option>
+        <option value="mg">Management Group</option>
+        <option value="sub">Subscription</option>
+        <option value="rg">Resource Group</option>
+        <option value="res">Resource</option>
+      </select>
+    </div>
+    <div class="buttons">
+      <button class="primary" type="submit">Check Answers</button>
+      <button class="secondary" type="button" id="reset">Try Again</button>
+    </div>
+  </form>
+
+  <section id="result" aria-live="polite"></section>
+  <footer>
+    <strong>Remember:</strong> Management Groups organize subscriptions; subscriptions contain Resource Groups; Resource Groups organize resources. Azure Resource Manager (ARM) is the management layer, not an extra level in this four-level hierarchy.
+  </footer>
+</main>
+<script>
+const correct = ["mg", "sub", "rg", "res"];
+const names = {
+  mg: "Management Group",
+  sub: "Subscription",
+  rg: "Resource Group",
+  res: "Resource"
+};
+const details = [
+  "Management Group — organizes multiple subscriptions and can be used for governance at a higher scope.",
+  "Subscription — organizes resource usage and provides a boundary for billing, quotas, and access management.",
+  "Resource Group — logically groups related Azure resources within one subscription.",
+  "Resource — an individual Azure service or component, such as a virtual machine, storage account, or database."
+];
+const form = document.getElementById("quiz");
+const result = document.getElementById("result");
+
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+  const answers = [1,2,3,4].map(n => document.getElementById("level" + n).value);
+  if (answers.some(answer => !answer)) {
+    result.className = "review";
+    result.innerHTML = "<strong>Please choose an answer for all four levels.</strong>";
+    return;
+  }
+  const score = answers.reduce((total, answer, index) => total + (answer === correct[index] ? 1 : 0), 0);
+  result.className = score === 4 ? "good" : "review";
+  let html = `<strong>${score === 4 ? "Excellent! All four levels are correct." : `You scored ${score}/4. Review the correct order below and try again.`}</strong>`;
+  html += "<ol id='explanations'>";
+  details.forEach((detail, index) => {
+    const mark = answers[index] === correct[index] ? "✓" : "✗";
+    html += `<li>${mark} ${detail}</li>`;
+  });
+  html += "</ol><strong>Correct order:</strong> Management Group → Subscription → Resource Group → Resource.";
+  result.innerHTML = html;
+  result.scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+document.getElementById("reset").addEventListener("click", function() {
+  form.reset();
+  result.className = "";
+  result.style.display = "none";
+  result.innerHTML = "";
+  document.getElementById("level1").focus();
+});
+</script>
+</body>
+</html>
